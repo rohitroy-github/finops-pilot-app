@@ -1,0 +1,9 @@
+{
+	"servers": {
+		"Prava Payments Docs": {
+			"url": "https://docs.prava.space/mcp",
+			"type": "http"
+		}
+	},
+	"inputs": []
+}

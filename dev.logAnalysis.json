@@ -1,0 +1,138 @@
+[api/event] Event received: {
+  dependency_merchant: 'TranslateAI',
+  dependency_working_status: 'api_limit_exhausted',
+  merchant_billing_url: 'https://careerpaths-ai.netlify.app/#pricing'
+}
+
+[planner/start]
+
+[launchBrowser] in { url: 'https://careerpaths-ai.netlify.app/#pricing' }
+
+[launchBrowser] out { mode: 'live' }
+
+[extractPricingText] in { hasPage: true }
+
+[extractPricingText] out { textLength: 2173 }
+
+[analyzePricingByLLM] in {
+  dependency: 'TranslateAI',
+  billing_url: 'https://careerpaths-ai.netlify.app/#pricing',
+  dependency_status: 'api_limit_exhausted',
+  pricingTextLength: 2173
+}
+
+[analyzePricingByLLM] out { merchantName: 'TranslateAI', exactCost: 10, plan: 'Developer Plan' }
+
+[createJob] in { hasEvent: true, hasPurchasePlan: true }
+
+[createJob] out { jobId: '586cf4b4-0508-46e6-9f46-1137497736dc', totalJobs: 1 }
+
+[planner/end]
+
+[api/event] Planner result: {
+  success: true,
+  jobId: '586cf4b4-0508-46e6-9f46-1137497736dc',
+  purchasePlan: {
+    merchantName: 'TranslateAI',
+    exactCost: 10,
+    recommendedPlan: {
+      name: 'Developer Plan',
+      rationale: 'Demo result based on scrapBed text (2173 chars). Suitable for moderate-to-high API usage.'
+    }
+  },
+  elapsedMs: 10810,
+  pravaSession: {
+    sessionId: 'ses_01KYCJTVGNDPBB3RZC79EHTFY',
+    sessionToken: 'eyJhbGciOiJIUzI1NiJ9.eyJtZXJjaGFudEFjY291bnRJZCI6Im1hXzAxS1hSRjdKTVdNNjUwNFJLNjc3NTlFOFlWIiwibWVyY2hhbnRJZCI6ImZpbm9wc19waWxvdCIsImN1c3RvbWVySWQiOiJjdXNfMDFLWTczRTZIV1Y3NEo5VFkzUUJOS1JZWTciLCJleHRlcm5hbFVzZXJJZCI6InVzZXJfZmlub3BzX3BpbG90IiwidG9rZW5Mb2NrZXJJZCI6InRfZmlub3BzX3BpbG90IiwiY3VzdG9tZXJFbWFpbCI6InVzZXJfZmlub3BzX3BpbG90QGdtYWlsLmNvbSIsImlhdCI6MTc4NDk4MTMxOSwiZXhwIjoxNzg0OTgyMjE5LCJqdGkiOiI2OTExZWFjZGVjZDBjMmI3ZTJjMWRmMzcwNGJlOWUyMSJ9.3CcytvHQD9LHG_TMX3nEaINdPCItg21yDri03S8Axxk',
+    iframeUrl: 'https://sandbox.collect.prava.space?session=ses_01KYCJTVGNDPBB3RZC79EHBTFY'
+  }
+}
+
+ POST /api/event 200 in 11.8s (next.js: 966ms, application-code: 10.8s)
+ POST /api/prava/session 200 in 135ms (next.js: 113ms, application-code: 22ms)
+ GET /api/logs 200 in 22ms (next.js: 8ms, application-code: 14ms)
+ GET /api/prava/payment-result?sessionId=ses_01KYCJTVGNDPBB3RZC79EHBTFY 200 in 362ms (next.js: 73ms, application-code: 289ms)
+ GET /api/logs 200 in 37ms (next.js: 16ms, application-code: 20ms)
+ GET /api/logs 200 in 34ms (next.js: 10ms, application-code: 24ms)
+ GET /api/prava/payment-result?sessionId=ses_01KYCJTVGNDPBB3RZC79EHBTFY 200 in 791ms (next.js: 6ms, application-code: 785ms)
+ GET /api/logs 200 in 15ms (next.js: 5ms, application-code: 10ms)
+ GET /api/logs 200 in 28ms (next.js: 9ms, application-code: 20ms)
+ GET /api/logs 200 in 29ms (next.js: 11ms, application-code: 18ms)
+ GET /api/prava/payment-result?sessionId=ses_01KYCJTVGNDPBB3RZC79EHBTFY 200 in 1103ms (next.js: 13ms, application-code: 1090ms)
+ GET /api/logs 200 in 37ms (next.js: 11ms, application-code: 27ms)
+ GET /api/logs 200 in 48ms (next.js: 18ms, application-code: 31ms)
+ GET /api/logs 200 in 37ms (next.js: 14ms, application-code: 23ms)
+ GET /api/prava/payment-result?sessionId=ses_01KYCJTVGNDPBB3RZC79EHBTFY 200 in 1354ms (next.js: 12ms, application-code: 1342ms)
+ GET /api/logs 200 in 24ms (next.js: 8ms, application-code: 15ms)
+ GET /api/logs 200 in 60ms (next.js: 35ms, application-code: 25ms)
+ GET /api/prava/payment-result?sessionId=ses_01KYCJTVGNDPBB3RZC79EHBTFY 200 in 302ms (next.js: 10ms, application-code: 292ms)
+ GET /api/logs 200 in 27ms (next.js: 7ms, application-code: 20ms)
+ GET /api/logs 200 in 32ms (next.js: 12ms, application-code: 20ms)
+ GET /api/logs 200 in 31ms (next.js: 10ms, application-code: 21ms)
+ GET /api/prava/payment-result?sessionId=ses_01KYCJTVGNDPBB3RZC79EHBTFY 200 in 1689ms (next.js: 14ms, application-code: 1675ms)
+ GET /api/logs 200 in 31ms (next.js: 10ms, application-code: 21ms)
+ GET /api/logs 200 in 39ms (next.js: 25ms, application-code: 14ms)
+ GET /api/prava/payment-result?sessionId=ses_01KYCJTVGNDPBB3RZC79EHBTFY 200 in 288ms (next.js: 7ms, application-code: 282ms)
+ GET /api/logs 200 in 33ms (next.js: 13ms, application-code: 20ms)
+ GET /api/logs 200 in 17ms (next.js: 6ms, application-code: 10ms)
+
+[prava/payment-result] credentials generated {
+  sessionId: 'ses_01KYCJTVGNDPBB3RZC79EHBTFY',
+  orderId: 'ord_01KYCJTVGNDPBB3RZC79EHBTFZ',
+  txnId: 'txn_01KYCJV67Y9HZYHJHJW27K2WGB',
+  merchantName: 'TranslateAI',
+  merchantUrl: 'https://careerpaths-ai.netlify.app',
+  totalAmount: '10.00',
+  status: 'credentials_generated',
+  tokenLast4: '6506',
+  expiryMonth: '12',
+  expiryYear: '2027',
+  txnRefId: 'tli_01KYCJV687YE4QQZ4MAW9WCJH2',
+  token: '4323126883116506',
+  dynamicCvv: '863'
+}
+
+ GET /api/prava/payment-result?sessionId=ses_01KYCJTVGNDPBB3RZC79EHBTFY 200 in 850ms (next.js: 5ms, application-code: 845ms)
+
+[merchant-payment/automation] payment request received, starting automation {
+  merchantCheckoutUrl: 'http://localhost:3001/checkout?plan=Developer&client_id=client_auth_12345',
+  sessionId: 'ses_01KYCJTVGNDPBB3RZC79EHBTFY',
+  customer_name: 'Finops Pilot Agent'
+}
+
+[merchant-payment/automation] payment automation begins {
+  merchantCheckoutUrl: 'http://localhost:3001/checkout?plan=Developer&client_id=client_auth_12345',
+  sessionId: 'ses_01KYCJTVGNDPBB3RZC79EHBTFY',
+  tokenLast4: '6506'
+}
+
+[merchant-payment/automation] filling checkout form feilds {
+  merchantCheckoutUrl: 'http://localhost:3001/checkout?plan=Developer&client_id=client_auth_12345',
+  sessionId: 'ses_01KYCJTVGNDPBB3RZC79EHBTFY'
+}
+
+[merchant-payment/automation] making purchase now {
+  merchantCheckoutUrl: 'http://localhost:3001/checkout?plan=Developer&client_id=client_auth_12345',
+  sessionId: 'ses_01KYCJTVGNDPBB3RZC79EHBTFY'
+}
+
+[merchant-payment/automation] automation closed {
+  merchantCheckoutUrl: 'http://localhost:3001/checkout?plan=Developer&client_id=client_auth_12345',
+  sessionId: 'ses_01KYCJTVGNDPBB3RZC79EHBTFY',
+  outcome: 'success',
+  pageUrl: 'http://localhost:3001/checkout/success?plan=Developer&client_id=client_auth_12345',
+  tokenLast4: '6506'
+}
+
+POST /agent/merchant-payment 200 in 8.9s (next.js: 85ms, application-code: 8.8s)
+
+
+table 1 - users 
+
+columns - name, username (unique), mobile_number(unique), password, prava_user_id(unique => 'finops_pilot_user_{usermame}')
+
+table 2 - events
+
+column - username, prava_user_id, inc_merchant_name, inc_merchant_status, inc_merchant_pricing_url, payment_amount, prava_session_id, agent_job_id, agent_final_payment_status
+
+in column 2, apart from username, prava_user_id, inc_merchant_name, inc_merchant_status, inc_merchant_pricing_url - everything should be prefilled with default values and will be updated later ince we get the data

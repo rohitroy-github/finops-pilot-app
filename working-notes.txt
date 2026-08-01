@@ -1,0 +1,11 @@
+NGROK setup
+
+> installtion(one-time)
+npm install -g ngrok
+> configuration(one-time)
+ngrok config add-authtoken 3HImeVvnzRTuticSCcQLko7KWmH_32uUio8DZ3FgpQYJ1U1K4
+
+> Run dev project on 3000 in Terminal 1
+npm run dev
+> Run ngrok in Terminal 2 to forward
+ngrok http 3000
