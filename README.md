@@ -44,6 +44,25 @@ This reduces downtime and removes the need to expose raw corporate cards to scri
 - LINQ notifications for user-facing status and payment-link delivery.
 - Real-time event logging and dashboard visibility.
 
+## Project Snapshot
+
+Current shape of the pilot application:
+
+- Frontend: Next.js App Router pages in `app/`, including auth routes and per-agent dashboard routes under `app/agent/[username]/dashboard`.
+- API Layer: Route handlers in `app/api/` for auth, events, logs, mandates, merchant payment, and Prava integrations.
+- Domain Logic: Shared orchestration and integration utilities in `app/utils/` (planner, session handling, browser automation, logging, and provider clients).
+- UI Components: Reusable interface primitives in `app/components/`, including dashboard panels for cards, events, mandates, and live activity.
+- Data Access: MySQL connection and persistence helpers in `app/lib/db.ts`.
+- Runtime Artifacts: Local event/log analysis files and temporary execution traces used for debugging and flow validation.
+
+Key API areas in this repo:
+
+- Incident and orchestration: `/api/event`, `/api/events`
+- Observability: `/api/logs`, `/api/logs/stream`
+- Prava workflows: `/api/prava/session`, `/api/prava/mandate/create`, `/api/prava/mandate/list`, `/api/prava/list-cards`, `/api/prava/revoke`, `/api/prava/payment-result`
+- Merchant and notifications: `/api/merchant-payment`, `/api/linq/notification`
+- Authentication: `/api/auth/log-in`, `/api/auth/sign-up`
+
 ## High-Level Flow
 
 1. Incident enters the system via API route.
@@ -62,22 +81,6 @@ This reduces downtime and removes the need to expose raw corporate cards to scri
 - LINQ APIs
 - Playwright
 - MySQL via mysql2
-
-## Project Structure (Key Areas)
-
-- app/api/event: incident ingestion and orchestration
-- app/api/merchant-payment: merchant checkout execution
-- app/api/linq/notification: LINQ notification dispatch route
-- app/api/prava/session: session retrieval/flow support
-- app/api/prava/payment-result: payment-result polling/normalization
-- app/api/prava/mandate/create: mandate session creation via Prava
-- app/api/prava/mandate/list: mandates fetch via Prava
-- app/api/logs and app/api/logs/stream: event log APIs for dashboard
-- app/components/dashboard: events, cards, and mandates UI panels
-- app/utils/llm: OpenAI-based analysis and selector inference
-- app/utils/linq: LINQ payload builders and outbound notification calls
-- app/utils/pravaSession: Prava integration helpers
-- app/utils/eventLogger: centralized live event stream
 
 ## Getting Started
 
