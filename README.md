@@ -46,22 +46,12 @@ This reduces downtime and removes the need to expose raw corporate cards to scri
 
 ## Project Snapshot
 
-Current shape of the pilot application:
+<img width="1920" height="1080" alt="dashboard_with_console" src="https://github.com/user-attachments/assets/ecdac31f-a364-402d-bd3e-46e108f5e85b" />
+<img width="1920" height="933" alt="Screenshot (78)" src="https://github.com/user-attachments/assets/c7f6f9d0-17ee-43f5-9e64-7243eac2f32d" />
+<img width="1917" height="963" alt="1" src="https://github.com/user-attachments/assets/a4658142-1dbb-4e33-8ecc-ad3e51635db3" />
+<img width="1920" height="963" alt="Screenshot (83)" src="https://github.com/user-attachments/assets/7b63ea51-a02f-4990-a042-957020be41be" />
+<img width="1920" height="927" alt="Screenshot (85)" src="https://github.com/user-attachments/assets/2e170b21-277f-4cdd-9926-3f0cff97c08e" />
 
-- Frontend: Next.js App Router pages in `app/`, including auth routes and per-agent dashboard routes under `app/agent/[username]/dashboard`.
-- API Layer: Route handlers in `app/api/` for auth, events, logs, mandates, merchant payment, and Prava integrations.
-- Domain Logic: Shared orchestration and integration utilities in `app/utils/` (planner, session handling, browser automation, logging, and provider clients).
-- UI Components: Reusable interface primitives in `app/components/`, including dashboard panels for cards, events, mandates, and live activity.
-- Data Access: MySQL connection and persistence helpers in `app/lib/db.ts`.
-- Runtime Artifacts: Local event/log analysis files and temporary execution traces used for debugging and flow validation.
-
-Key API areas in this repo:
-
-- Incident and orchestration: `/api/event`, `/api/events`
-- Observability: `/api/logs`, `/api/logs/stream`
-- Prava workflows: `/api/prava/session`, `/api/prava/mandate/create`, `/api/prava/mandate/list`, `/api/prava/list-cards`, `/api/prava/revoke`, `/api/prava/payment-result`
-- Merchant and notifications: `/api/merchant-payment`, `/api/linq/notification`
-- Authentication: `/api/auth/log-in`, `/api/auth/sign-up`
 
 ## High-Level Flow
 
