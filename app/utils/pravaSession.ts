@@ -123,27 +123,6 @@ async function resolvePravaUserIdFromUsersTable(
   return pravaUserId;
 }
 
-async function resolveNotificationHandleFromUsersTable(
-  event: Record<string, unknown>,
-): Promise<string | undefined> {
-  const username = resolveUsernameFromEvent(event);
-  if (!username) {
-    return undefined;
-  }
-
-  const rows = await query<UserNotificationHandleRow[]>(
-    `
-      SELECT mobile_number
-      FROM users
-      WHERE username = ?
-      LIMIT 1
-    `,
-    [username],
-  );
-
-  return readString(rows[0]?.mobile_number);
-}
-
 async function buildBody(job: PlannerJob): Promise<PravaSessionRequestBody> {
   // Map planner output to Prava's Create Session schema with safe demo defaults.
   const purchasePlan = asPurchasePlan(job.purchasePlan);
@@ -208,7 +187,6 @@ export async function createPravaSessionFromPlannerJob(
 
   const baseUrl = resolvePravaBaseUrl(secretKey);
   const event = asJobEvent(job.event);
-  const toHandle = await resolveNotificationHandleFromUsersTable(event);
   const body = await buildBody(job);
 
   // Create a Prava session that the frontend uses for collectPAN/iframe flows.
@@ -227,7 +205,6 @@ export async function createPravaSessionFromPlannerJob(
     try {
       await sendLinqNotification({
         purpose: "chat_notification",
-        // to: toHandle ? [toHandle] : undefined,
         message: `Hi, this is your Finops Pilot. I could not create your payment session right now. Error: ${errorText}`,
       });
     } catch (notificationError) {
@@ -247,19 +224,16 @@ export async function createPravaSessionFromPlannerJob(
     if (sessionResponse.iframe_url) {
       await sendLinqNotification({
         purpose: "chat_notification",
-        // to: toHandle ? [toHandle] : undefined,
         message:
-          "I have created a payemnt session successfully, please approve the payment using the link below.",
+          "I have created a Prava payemnt session successfully, please approve the payment using the shared link below or visit your dashbaord.",
       });
       await sendLinqNotification({
         purpose: "payment_link_notification",
-        // to: toHandle ? [toHandle] : undefined,
         paymentLink: sessionResponse.iframe_url,
       });
     } else {
       await sendLinqNotification({
         purpose: "chat_notification",
-        // to: toHandle ? [toHandle] : undefined,
         message:
           "Hi, this is your Finops Pilot. Your payment session was created successfully.",
       });

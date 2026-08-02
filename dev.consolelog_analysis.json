@@ -1,0 +1,262 @@
+[api/event] New event received: {
+  dependency_merchant: 'TranslateAI',
+  dependency_working_status: 'api_limit_exhausted',
+  merchant_billing_url: 'https://translate-ai-kappa.vercel.app/pricing',
+  client_username: 'rohitroy',
+  client_token: 'finops_pilot_user_rohitroy_clienttoken'
+}
+ GET /api/logs 200 in 56ms (next.js: 27ms, application-code: 29ms)
+[linq] Sent user a notification { purpose: 'chat_notification' }
+[planner/start]
+[launchBrowser] in { url: 'https://translate-ai-kappa.vercel.app/pricing' }
+ GET /api/logs 200 in 68ms (next.js: 23ms, application-code: 46ms)
+ GET /api/logs 200 in 117ms (next.js: 84ms, application-code: 33ms)
+ GET /api/logs 200 in 56ms (next.js: 23ms, application-code: 33ms)
+ GET /api/logs 200 in 52ms (next.js: 19ms, application-code: 34ms)
+ GET /api/logs 200 in 47ms (next.js: 15ms, application-code: 32ms)
+ GET /api/logs 200 in 45ms (next.js: 15ms, application-code: 31ms)
+ GET /api/logs 200 in 45ms (next.js: 15ms, application-code: 30ms)
+ GET /api/logs 200 in 48ms (next.js: 16ms, application-code: 32ms)
+ GET /api/logs 200 in 47ms (next.js: 15ms, application-code: 31ms)
+ GET /api/logs 200 in 43ms (next.js: 13ms, application-code: 29ms)
+ GET /api/logs 200 in 45ms (next.js: 17ms, application-code: 28ms)
+ GET /api/logs 200 in 49ms (next.js: 18ms, application-code: 31ms)
+[launchBrowser] out { mode: 'live_page_data' }
+[extractPricingText] in { hasPage: true }
+[extractPricingText] out { textLength: 203 }
+[analyzePricingByLLM] in {
+  dependency: 'TranslateAI',
+  billing_url: 'https://translate-ai-kappa.vercel.app/pricing',
+  dependency_status: 'api_limit_exhausted',
+  pricingTextLength: 203
+}
+ GET /api/logs 200 in 41ms (next.js: 15ms, application-code: 26ms)
+ GET /api/logs 200 in 51ms (next.js: 18ms, application-code: 33ms)
+[analyzePricingByLLM] out {
+  model: 'gpt-4o-mini',
+  merchantName: 'TranslateAI',
+  exactCost: 25,
+  plan: 'Business'
+}
+[createJob] in { hasEvent: true, hasPurchasePlan: true }
+[createJob] out { jobId: '93a0698f-249d-4c56-a201-d4dec955bea8', totalJobs: 1 }
+[linq] Sent user a notification { purpose: 'chat_notification' }
+[linq] Sent user a notification { purpose: 'payment_link_notification' }
+ POST /api/prava/session 200 in 449ms (next.js: 415ms, application-code: 34ms)
+ GET /api/logs 200 in 65ms (next.js: 27ms, application-code: 39ms)
+ GET /api/logs 200 in 47ms (next.js: 17ms, application-code: 29ms)
+ GET /api/logs 200 in 46ms (next.js: 13ms, application-code: 33ms)
+[merchant-payment/automation] credentials not yet available {
+  sessionId: 'ses_01KZ1BWBW3WKB2ZEM44E482NVV',
+  orderId: 'ord_01KZ1BWBW3WKB2ZEM44E482NVW',
+  txnId: undefined,
+  status: 'pending',
+  hasToken: false,
+  hasDynamicCvv: false
+}
+ GET /api/logs 200 in 71ms (next.js: 21ms, application-code: 50ms)
+ GET /api/logs 200 in 43ms (next.js: 17ms, application-code: 26ms)
+ GET /api/logs 200 in 53ms (next.js: 21ms, application-code: 31ms)
+[merchant-payment/automation] credentials not yet available {
+  sessionId: 'ses_01KZ1BWBW3WKB2ZEM44E482NVV',
+  orderId: 'ord_01KZ1BWBW3WKB2ZEM44E482NVW',
+  txnId: undefined,
+  status: 'pending',
+  hasToken: false,
+  hasDynamicCvv: false
+}
+ GET /api/logs 200 in 45ms (next.js: 17ms, application-code: 28ms)
+ GET /api/logs 200 in 53ms (next.js: 20ms, application-code: 33ms)
+ GET /api/logs 200 in 46ms (next.js: 17ms, application-code: 29ms)
+[merchant-payment/automation] credentials not yet available {
+  sessionId: 'ses_01KZ1BWBW3WKB2ZEM44E482NVV',
+  orderId: 'ord_01KZ1BWBW3WKB2ZEM44E482NVW',
+  txnId: 'txn_01KZ1BWVYFCZ6DV6XGAY4AGQ7D',
+  status: 'processing',
+  hasToken: false,
+  hasDynamicCvv: false
+}
+ GET /api/logs 200 in 46ms (next.js: 15ms, application-code: 31ms)
+ GET /api/logs 200 in 47ms (next.js: 17ms, application-code: 31ms)
+ GET /api/logs 200 in 49ms (next.js: 17ms, application-code: 32ms)
+[merchant-payment/automation] credentials not yet available {
+  sessionId: 'ses_01KZ1BWBW3WKB2ZEM44E482NVV',
+  orderId: 'ord_01KZ1BWBW3WKB2ZEM44E482NVW',
+  txnId: 'txn_01KZ1BWVYFCZ6DV6XGAY4AGQ7D',
+  status: 'processing',
+  hasToken: false,
+  hasDynamicCvv: false
+}
+ GET /api/logs 200 in 51ms (next.js: 13ms, application-code: 37ms)
+ GET /api/logs 200 in 44ms (next.js: 14ms, application-code: 30ms)
+ GET /api/logs 200 in 55ms (next.js: 20ms, application-code: 35ms)
+[merchant-payment/automation] credentials not yet available {
+  sessionId: 'ses_01KZ1BWBW3WKB2ZEM44E482NVV',
+  orderId: 'ord_01KZ1BWBW3WKB2ZEM44E482NVW',
+  txnId: 'txn_01KZ1BWVYFCZ6DV6XGAY4AGQ7D',
+  status: 'processing',
+  hasToken: false,
+  hasDynamicCvv: false
+}
+ GET /api/logs 200 in 67ms (next.js: 19ms, application-code: 48ms)
+ GET /api/logs 200 in 59ms (next.js: 20ms, application-code: 39ms)
+ GET /api/logs 200 in 38ms (next.js: 14ms, application-code: 24ms)
+[merchant-payment/automation] credentials not yet available {
+  sessionId: 'ses_01KZ1BWBW3WKB2ZEM44E482NVV',
+  orderId: 'ord_01KZ1BWBW3WKB2ZEM44E482NVW',
+  txnId: 'txn_01KZ1BWVYFCZ6DV6XGAY4AGQ7D',
+  status: 'failed',
+  hasToken: false,
+  hasDynamicCvv: false
+}
+ GET /api/logs 200 in 49ms (next.js: 16ms, application-code: 33ms)
+ GET /api/logs 200 in 47ms (next.js: 17ms, application-code: 29ms)
+ GET /api/logs 200 in 58ms (next.js: 21ms, application-code: 37ms)
+[merchant-payment/automation] credentials not yet available {
+  sessionId: 'ses_01KZ1BWBW3WKB2ZEM44E482NVV',
+  orderId: 'ord_01KZ1BWBW3WKB2ZEM44E482NVW',
+  txnId: 'txn_01KZ1BWVYFCZ6DV6XGAY4AGQ7D',
+  status: 'failed',
+  hasToken: false,
+  hasDynamicCvv: false
+}
+ GET /api/logs 200 in 37ms (next.js: 13ms, application-code: 24ms)
+ GET /api/logs 200 in 53ms (next.js: 20ms, application-code: 33ms)
+ GET /api/logs 200 in 48ms (next.js: 12ms, application-code: 35ms)
+[merchant-payment/automation] credentials not yet available {
+  sessionId: 'ses_01KZ1BWBW3WKB2ZEM44E482NVV',
+  orderId: 'ord_01KZ1BWBW3WKB2ZEM44E482NVW',
+  txnId: 'txn_01KZ1BWVYFCZ6DV6XGAY4AGQ7D',
+  status: 'failed',
+  hasToken: false,
+  hasDynamicCvv: false
+}
+ GET /api/logs 200 in 62ms (next.js: 21ms, application-code: 40ms)
+ GET /api/logs 200 in 51ms (next.js: 19ms, application-code: 32ms)
+[merchant-payment/automation] credentials not yet available {
+  sessionId: 'ses_01KZ1BWBW3WKB2ZEM44E482NVV',
+  orderId: 'ord_01KZ1BWBW3WKB2ZEM44E482NVW',
+  txnId: 'txn_01KZ1BXV19PS3B69HK29W5ZTJ1',
+  status: 'processing',
+  hasToken: false,
+  hasDynamicCvv: false
+}
+ GET /api/logs 200 in 60ms (next.js: 21ms, application-code: 39ms)
+ GET /api/logs 200 in 33ms (next.js: 12ms, application-code: 21ms)
+ GET /api/logs 200 in 59ms (next.js: 22ms, application-code: 37ms)
+[merchant-payment/automation] credentials not yet available {
+  sessionId: 'ses_01KZ1BWBW3WKB2ZEM44E482NVV',
+  orderId: 'ord_01KZ1BWBW3WKB2ZEM44E482NVW',
+  txnId: 'txn_01KZ1BXV19PS3B69HK29W5ZTJ1',
+  status: 'processing',
+  hasToken: false,
+  hasDynamicCvv: false
+}
+ GET /api/logs 200 in 71ms (next.js: 32ms, application-code: 39ms)
+ GET /api/logs 200 in 58ms (next.js: 22ms, application-code: 36ms)
+ GET /api/logs 200 in 56ms (next.js: 16ms, application-code: 40ms)
+[merchant-payment/automation] credentials not yet available {
+  sessionId: 'ses_01KZ1BWBW3WKB2ZEM44E482NVV',
+  orderId: 'ord_01KZ1BWBW3WKB2ZEM44E482NVW',
+  txnId: 'txn_01KZ1BXV19PS3B69HK29W5ZTJ1',
+  status: 'processing',
+  hasToken: false,
+  hasDynamicCvv: false
+}
+ GET /api/logs 200 in 61ms (next.js: 14ms, application-code: 47ms)
+ GET /api/logs 200 in 58ms (next.js: 19ms, application-code: 39ms)
+[merchant-payment/automation] credentials not yet available {
+  sessionId: 'ses_01KZ1BWBW3WKB2ZEM44E482NVV',
+  orderId: 'ord_01KZ1BWBW3WKB2ZEM44E482NVW',
+  txnId: 'txn_01KZ1BXV19PS3B69HK29W5ZTJ1',
+  status: 'processing',
+  hasToken: false,
+  hasDynamicCvv: false
+}
+ GET /api/logs 200 in 51ms (next.js: 22ms, application-code: 29ms)
+ GET /api/logs 200 in 111ms (next.js: 67ms, application-code: 44ms)
+ GET /api/logs 200 in 57ms (next.js: 17ms, application-code: 39ms)
+[merchant-payment/automation] credentials fetched {
+  sessionId: 'ses_01KZ1BWBW3WKB2ZEM44E482NVV',
+  orderId: 'ord_01KZ1BWBW3WKB2ZEM44E482NVW',
+  txnId: 'txn_01KZ1BXV19PS3B69HK29W5ZTJ1',
+  status: 'awaiting_result',
+  tokenLast4: '7110',
+  expiryMonth: '12',
+  expiryYear: '2030'
+}
+[merchant-payment/automation] merchant payment request received, starting automation ... {
+  merchantCheckoutUrl: 'https://translate-ai-kappa.vercel.app/checkout?plan=Developer&client_id=client_auth_12345',
+  pravapravaSessionId: 'ses_01KZ1BWBW3WKB2ZEM44E482NVV',
+  customer_name: 'Finops Pilot Agent'
+}
+[merchant-payment/automation] automation starts here {
+  merchantCheckoutUrl: 'https://translate-ai-kappa.vercel.app/checkout?plan=Developer&client_id=client_auth_12345',
+  pravaSessionId: 'ses_01KZ1BWBW3WKB2ZEM44E482NVV',
+  cardNumber: '****7110'
+}
+[merchant-payment/automation] card details being used (masked) {
+  cardNumber: '****7110',
+  cardCVV: '***',
+  cardExpiryMonth: '12',
+  cardExpiryYear: '2030'
+}
+ GET /api/logs 200 in 54ms (next.js: 11ms, application-code: 42ms)
+ GET /api/logs 200 in 57ms (next.js: 18ms, application-code: 39ms)
+ GET /api/logs 200 in 37ms (next.js: 12ms, application-code: 24ms)
+ GET /api/logs 200 in 51ms (next.js: 17ms, application-code: 34ms)
+ GET /api/logs 200 in 44ms (next.js: 14ms, application-code: 30ms)
+ GET /api/logs 200 in 45ms (next.js: 14ms, application-code: 31ms)
+[merchant-payment/automation] LLM analyzed checkout selectors {
+  inferredCheckoutSelectors: {
+    cardholderNameInput: 'input[name="cardholderName"]',
+    tokenInput: 'input[name="cardNumber"]',
+    cvvInput: 'input[name="cvv"]',
+    expiryInput: 'input[name="expiry"]',
+    payButton: 'button[type="submit"]',
+    reasoning: "The selectors are based on stable attributes such as 'name' for input fields and 'type' for the button, ensuring they are less likely to change with UI updates."
+  }
+}
+[merchant-payment/automation] filling payment check-out form feilds {
+  merchantCheckoutUrl: 'https://translate-ai-kappa.vercel.app/checkout?plan=Developer&client_id=client_auth_12345'
+}
+[merchant-payment/automation] submitting credentials, making payment now {
+  merchantCheckoutUrl: 'https://translate-ai-kappa.vercel.app/checkout?plan=Developer&client_id=client_auth_12345'
+}
+ GET /api/logs 200 in 52ms (next.js: 18ms, application-code: 34ms)
+[merchant-payment/automation] automation ends here {
+  pravaSessionId: 'ses_01KZ1BWBW3WKB2ZEM44E482NVV',
+  outcome: 'success',
+  afterPaymentCheckoutURL: 'https://translate-ai-kappa.vercel.app/checkout/success?plan=Developer&client_id=client_auth_12345'
+}
+ GET /api/logs 200 in 44ms (next.js: 16ms, application-code: 28ms)
+ POST /api/merchant-payment 200 in 14.7s (next.js: 254ms, application-code: 14.5s)
+[planner/end]
+[api/event] Planner result: {
+  success: true,
+  jobId: '93a0698f-249d-4c56-a201-d4dec955bea8',
+  purchasePlan: {
+    merchantName: 'TranslateAI',
+    exactCost: 25,
+    recommendedPlan: {
+      name: 'Business',
+      rationale: "The Business plan offers unlimited requests, which is necessary to support the customer's workload after exhausting the API limit."
+    }
+  },
+  elapsedMs: 118990,
+  pravaSession: {
+    sessionId: 'ses_01KZ1BWBW3WKB2ZEM44E482NVV',
+    sessionToken: 'eyJhbGciOiJIUzI1NiJ9.eyJtZXJjaGFudEFjY291bnRJZCI6Im1hXzAxS1hSRjdKTVdNNjUwNFJLNjc3NTlFOFlWIiwibWVyY2hhbnRJZCI6ImZpbm9wc19waWxvdCIsImN1c3RvbWVySWQiOiJjdXNfMDFLWVlQQUExRkJLNjVEWEdOUENZODRFMUciLCJleHRlcm5hbFVzZXJJZCI6ImZpbm9wc19waWxvdF91c2VyX3JvaGl0cm95IiwidG9rZW5Mb2NrZXJJZCI6InRfZmlub3BzX3BpbG90IiwiY3VzdG9tZXJFbWFpbCI6ImZpbm9wc19jbGllbnRfZW1haWxAZ21haWwuY29tIiwiaWF0IjoxNzg1Njc4NjcxLCJleHAiOjE3ODU2Nzk1NzEsImp0aSI6IjgyZjU2YTg2ZTBhZmM3MTFiNGViZjAyYzMyYjQ2NjJiIn0.puGb6g85XqGJsq3DkhRERbHqnwrOZUN_XlZu0pz8Ejs',
+    iframeUrl: 'https://sandbox.collect.prava.space?session=ses_01KZ1BWBW3WKB2ZEM44E482NVV'
+  },
+  merchantPaymentOutcome: {
+    outcome: 'success',
+    sessionId: 'ses_01KZ1BWBW3WKB2ZEM44E482NVV',
+    afterPaymentPage: {
+      title: 'Payment Success',
+      url: 'https://translate-ai-kappa.vercel.app/checkout/success?plan=Developer&client_id=client_auth_12345'
+    }
+  }
+}
+[linq] Sent user a notification { purpose: 'chat_notification' }
+[api/event] Final status notification sent successfully { merchant_payment_status: 'success' }

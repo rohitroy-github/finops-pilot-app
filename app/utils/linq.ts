@@ -1,3 +1,5 @@
+import { eventLogger } from "./eventLogger";
+
 export type LinqChatCreateResponse = Record<string, unknown>;
 export type LinqNotificationPurpose =
   | "chat_notification"
@@ -133,11 +135,38 @@ export async function sendLinqNotification(
 ): Promise<LinqChatCreateResponse> {
   const purpose = params.purpose ?? "chat_notification";
   const payload = buildLinqNotificationPayload(params);
-  const response = await createLinqChatNotification(payload);
 
-  console.log("[linq] Sent user a notification", {
+  eventLogger.info("Sending SMS notification to user.", {
+    stage: "linq_notification_start",
     purpose,
+    recipientsCount: payload.to.length,
   });
 
-  return response;
+  try {
+    const response = await createLinqChatNotification(payload);
+
+    eventLogger.success("Notified user successfully over SMS.", {
+      stage: "linq_notification_sent",
+      purpose,
+      recipientsCount: payload.to.length,
+    });
+
+    console.log("[linq] Sent user a notification", {
+      purpose,
+    });
+
+    return response;
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown LINQ notification error";
+
+    eventLogger.error("Failed to send SMS notification to user.", {
+      stage: "linq_notification_error",
+      purpose,
+      recipientsCount: payload.to.length,
+      error: errorMessage,
+    });
+
+    throw error;
+  }
 }

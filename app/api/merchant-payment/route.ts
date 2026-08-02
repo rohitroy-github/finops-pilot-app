@@ -100,7 +100,7 @@ export async function POST(request: Request) {
   const selectors = body.selectors;
   const customerName = asNonEmptyString(body.customer_name);
 
-  eventLogger.info("Initialized automation.", {
+  eventLogger.info("Initialized merchant payment automation successfully.", {
     stage: "merchant_payment_start",
     merchantCheckoutUrl,
     pravapravaSessionId: body.sessionId,
@@ -111,7 +111,7 @@ export async function POST(request: Request) {
     pravaSessionId: body.sessionId,
     cardNumber: maskToken(credentials.token),
   });
-  eventLogger.info("Processing payment information.", {
+  eventLogger.info("Processing card information.", {
     stage: "merchant_payment_processing",
     merchantCheckoutUrl,
     pravaSessionId: body.sessionId,
@@ -189,7 +189,7 @@ export async function POST(request: Request) {
             : {}),
         };
 
-        eventLogger.info("LLM inferred checkout form selectors.", {
+        eventLogger.info("LLM analyzed checkout page form selectors verified successfully", {
           stage: "merchant_payment_llm_checkout_selector_inference",
           merchantCheckoutUrl,
           tokenInput: effectiveSelectors.tokenInput,
@@ -240,7 +240,7 @@ export async function POST(request: Request) {
 
     await page.click(effectiveSelectors.payButton);
 
-    eventLogger.info("Paying merchant now.", {
+    eventLogger.info("Paying merchant now with card.", {
       stage: "merchant_payment_waiting_approval",
       merchantCheckoutUrl,
       pravaSessionId: body.sessionId,
@@ -280,7 +280,7 @@ export async function POST(request: Request) {
     const title = await page.title();
     const currentUrl = page.url();
 
-    eventLogger.success("Automation ended successfull.", {
+    eventLogger.success(`Automation ended with outcome: ${outcome}.`, {
       stage: "merchant_payment_complete",
       merchantCheckoutUrl,
       afterPaymentCheckoutURL: currentUrl,

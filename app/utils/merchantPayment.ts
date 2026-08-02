@@ -246,7 +246,9 @@ export async function watchAndTriggerMerchantPayment(params: {
         continue
       }
 
-      eventLogger.info('Credentials fetched - triggering merchant payment automation', {
+      const cardNumberMasked = maskToken(credentials.token)
+
+      eventLogger.info(`Credentials generated successfully - automating using card ${cardNumberMasked}`, {
         stage: 'merchant_payment_credentials_ready',
         sessionId,
       })
