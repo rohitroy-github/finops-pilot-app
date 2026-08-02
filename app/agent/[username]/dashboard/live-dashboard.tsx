@@ -11,15 +11,22 @@ import MandatesPanel from "@/app/components/dashboard/MandatesPanel";
 import {
   cancelPaymentSession,
   deriveLiveEvents,
+  fetchPastEventsByUsername,
   fetchLogSnapshot,
   fetchPravaSession,
   formatTime,
   mergeEventLogs,
+  type PastEventCard,
 } from "@/app/utils/liveDashboard";
 
-export default function LiveDashboard() {
+type LiveDashboardProps = {
+  username: string;
+};
+
+export default function LiveDashboard({ username }: LiveDashboardProps) {
   const [activePanel, setActivePanel] = useState<DashboardPanel>("events");
   const [logs, setLogs] = useState<EventLogEntry[]>([]);
+  const [pastEvents, setPastEvents] = useState<PastEventCard[]>([]);
   const [connectionState, setConnectionState] = useState<
     "Connecting" | "Connected" | "Polling" | "Disconnected"
   >("Connecting");
@@ -66,6 +73,25 @@ export default function LiveDashboard() {
       },
     ]);
   };
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadPastEvents = async () => {
+      const dbEvents = await fetchPastEventsByUsername(username);
+      if (cancelled || !dbEvents) {
+        return;
+      }
+
+      setPastEvents(dbEvents);
+    };
+
+    void loadPastEvents();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [username]);
 
   // Set up the EventSource connection and polling mechanism to receive live logs from the server. This effect runs once on component mount and cleans up on unmount.
   useEffect(() => {
@@ -231,6 +257,7 @@ export default function LiveDashboard() {
           {activePanel === "events" ? (
             <EventsPanel
               events={events}
+              pastEvents={pastEvents}
               isManuallyCancelled={isManuallyCancelled}
             />
           ) : null}

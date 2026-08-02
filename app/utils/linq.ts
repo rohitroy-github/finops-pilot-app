@@ -72,7 +72,17 @@ function buildLinqNotificationPayload(
     message: {
       parts:
         purpose === "payment_link_notification"
-          ? [{ type: "link", value: params.paymentLink as string }]
+          ? [
+              ...(params.message
+                ? ([
+                    {
+                      type: "text" as const,
+                      value: params.message,
+                    },
+                  ] as const)
+                : []),
+              { type: "link", value: params.paymentLink as string },
+            ]
           : [
               {
                 type: "text",

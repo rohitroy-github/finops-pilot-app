@@ -7,6 +7,16 @@ export type LiveEventCard = {
   receivedAt: string
 }
 
+export type PastEventCard = {
+  id: string
+  username: string
+  dependency: string
+  incidentStatus: string
+  paymentAmount: number
+  paymentStatus: string
+  receivedAt: string
+}
+
 export type PravaSessionData = {
   sessionId?: string
   sessionToken?: string
@@ -129,6 +139,35 @@ export async function fetchLogSnapshot(): Promise<EventLogEntry[] | null> {
 
     const data = (await response.json()) as { logs?: EventLogEntry[] }
     return Array.isArray(data.logs) ? data.logs : []
+  } catch {
+    return null
+  }
+}
+
+export async function fetchPastEventsByUsername(
+  username: string
+): Promise<PastEventCard[] | null> {
+  const normalizedUsername = username.trim()
+  if (!normalizedUsername) {
+    return []
+  }
+
+  try {
+    const response = await fetch('/api/events', {
+      method: 'POST',
+      cache: 'no-store',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ username: normalizedUsername, limit: 20 }),
+    })
+
+    if (!response.ok) {
+      return null
+    }
+
+    const data = (await response.json()) as { events?: PastEventCard[] }
+    return Array.isArray(data.events) ? data.events : []
   } catch {
     return null
   }

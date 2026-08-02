@@ -184,7 +184,7 @@ export function toExpiryMMYY(month?: string, year?: string): string | undefined 
 }
 
 export type MerchantPaymentWatcherResult = {
-  outcome: 'success' | 'failed' | 'submitted' | 'cancelled' | 'timeout' | 'skipped'
+  outcome: 'success' | 'failed' | 'submitted' | 'cancelled' | 'timeout' | 'skipped_dev_mode'
   sessionId?: string
   afterPaymentPage?: { title?: string; url?: string }
   error?: string

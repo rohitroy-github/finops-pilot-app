@@ -55,6 +55,28 @@ export async function POST(request: Request) {
   const plannerResult = await runPlanner(body);
   console.log("[api/event] Planner result:", plannerResult);
 
+  const finalAutomationStatus =
+    plannerResult.merchantPaymentOutcome?.outcome ?? "unknown";
+  const recommendedPlanName = plannerResult.purchasePlan.recommendedPlan.name;
+  const exactCost = plannerResult.purchasePlan.exactCost;
+  const finalStatusMessage =
+    finalAutomationStatus === "success"
+      ? `Hi ${body.client_username}, I just finished my automation with status: ${finalAutomationStatus}. Upgraded your APIs to ${recommendedPlanName} plan which costed ₹${exactCost}. Thanks :))`
+      : `Hi ${body.client_username}, I just finished my automation with status: ${finalAutomationStatus}. Thanks :))`;
+
+  try {
+    await sendLinqNotification({
+      purpose: "chat_notification",
+      message: finalStatusMessage,
+    });
+    console.log("[api/event] Final status notification sent successfully", {
+      status: finalAutomationStatus,
+    });
+
+  } catch (error) {
+    console.error("[api/event] Failed to send final status notification", error);
+  }
+
   return Response.json(
     {
       message: "Event received and planner executed (demo).",
