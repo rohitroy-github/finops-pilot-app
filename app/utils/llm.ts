@@ -22,6 +22,19 @@ export type OutcomeSelectorInference = {
   reasoning?: string
 }
 
+export type CheckoutSelectorInference = {
+  cardholderNameInput?: string
+  tokenInput?: string
+  cvvInput?: string
+  expiryInput?: string
+  expiryMonthInput?: string
+  expiryYearInput?: string
+  payButton?: string
+  successSelector?: string
+  failureSelector?: string
+  reasoning?: string
+}
+
 const purchasePlanSchema = z.object({
   merchantName: z.string().trim().min(1),
   exactCost: z.preprocess((value) => {
@@ -39,6 +52,19 @@ const purchasePlanSchema = z.object({
 })
 
 const outcomeSelectorInferenceSchema = z.object({
+  successSelector: z.string().trim().min(1).optional(),
+  failureSelector: z.string().trim().min(1).optional(),
+  reasoning: z.string().trim().min(1).optional(),
+})
+
+const checkoutSelectorInferenceSchema = z.object({
+  cardholderNameInput: z.string().trim().min(1).optional(),
+  tokenInput: z.string().trim().min(1).optional(),
+  cvvInput: z.string().trim().min(1).optional(),
+  expiryInput: z.string().trim().min(1).optional(),
+  expiryMonthInput: z.string().trim().min(1).optional(),
+  expiryYearInput: z.string().trim().min(1).optional(),
+  payButton: z.string().trim().min(1).optional(),
   successSelector: z.string().trim().min(1).optional(),
   failureSelector: z.string().trim().min(1).optional(),
   reasoning: z.string().trim().min(1).optional(),
@@ -199,4 +225,73 @@ export async function inferOutcomeSelectorsByLLM(params: {
   }
 
   return parsed.data satisfies OutcomeSelectorInference
+}
+
+export async function inferCheckoutSelectorsByLLM(params: {
+  checkoutUrl: string
+  pageTitle?: string
+  pageText: string
+  pageHtml?: string
+  knownSelectors?: {
+    cardholderNameInput?: string
+    tokenInput?: string
+    cvvInput?: string
+    expiryInput?: string
+    expiryMonthInput?: string
+    expiryYearInput?: string
+    payButton?: string
+    successSelector?: string
+    failureSelector?: string
+  }
+}): Promise<CheckoutSelectorInference | null> {
+  const client = getOpenAIClient()
+  const model = resolveOpenAIModel()
+
+  const completion = await client.chat.completions.create({
+    model,
+    temperature: 0,
+    response_format: { type: 'json_object' },
+    messages: [
+      {
+        role: 'system',
+        content:
+          'You infer robust Playwright selectors for payment checkout forms from page snapshots. Return JSON only. Keys may include cardholderNameInput, tokenInput, cvvInput, expiryInput, expiryMonthInput, expiryYearInput, payButton, successSelector, failureSelector, reasoning. Prefer stable CSS selectors (id/data-testid/name/class combinations). If uncertain, omit fields.',
+      },
+      {
+        role: 'user',
+        content: JSON.stringify({
+          checkoutUrl: params.checkoutUrl,
+          pageTitle: params.pageTitle ?? null,
+          knownSelectors: params.knownSelectors ?? {},
+          pageText: params.pageText.slice(0, 8_000),
+          pageHtml: (params.pageHtml ?? '').slice(0, 18_000),
+          constraints: {
+            objective:
+              'Find selectors to fill and submit a card checkout form, and optionally detect success/failure states.',
+            required: ['tokenInput', 'cvvInput', 'payButton'],
+            avoid: ['fragile nth-child selectors', 'long absolute selectors'],
+          },
+        }),
+      },
+    ],
+  })
+
+  const rawContent = completion.choices[0]?.message?.content?.trim()
+  if (!rawContent) {
+    return null
+  }
+
+  let parsedJson: unknown
+  try {
+    parsedJson = JSON.parse(rawContent)
+  } catch {
+    return null
+  }
+
+  const parsed = checkoutSelectorInferenceSchema.safeParse(parsedJson)
+  if (!parsed.success) {
+    return null
+  }
+
+  return parsed.data satisfies CheckoutSelectorInference
 }

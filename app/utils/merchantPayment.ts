@@ -304,6 +304,12 @@ export async function triggerMerchantPaymentWithDirectDemoCredentials(params: {
 }): Promise<MerchantPaymentWatcherResult> {
   const baseUrl = resolveInternalBaseUrl()
 
+  console.log('[merchant-payment/demo] triggering direct demo payment automation (DEV_MODE)', {
+    merchantCheckoutUrl: params.merchantCheckoutUrl,
+    customerName: params.customerName ?? 'Finops Pilot Agent',
+    tokenLast4: params.token.slice(-4),
+  })
+
   const response = await fetch(`${baseUrl}/api/merchant-payment`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -323,6 +329,11 @@ export async function triggerMerchantPaymentWithDirectDemoCredentials(params: {
 
   if (!response.ok) {
     const errorText = await response.text()
+    console.error('[merchant-payment/demo] direct demo payment automation failed', {
+      merchantCheckoutUrl: params.merchantCheckoutUrl,
+      status: response.status,
+      error: errorText,
+    })
     return { outcome: 'failed', error: errorText }
   }
 
@@ -337,6 +348,11 @@ export async function triggerMerchantPaymentWithDirectDemoCredentials(params: {
       : data.outcome === 'failed'
       ? 'failed'
       : 'submitted'
+
+  console.log('[merchant-payment/demo] demo merchant payment automation completed (DEV_MODE)', {
+    outcome,
+    afterPaymentPage: data.afterPaymentPage,
+  })
 
   return { outcome, afterPaymentPage: data.afterPaymentPage }
 }

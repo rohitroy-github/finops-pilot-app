@@ -1,12 +1,15 @@
 import { chromium } from "playwright";
 
 import { eventLogger } from "@/app/utils/eventLogger";
-import { inferOutcomeSelectorsByLLM } from "@/app/utils/llm";
+import {
+  inferCheckoutSelectorsByLLM,
+} from "@/app/utils/llm";
 import { getPravaPaymentResult } from "@/app/utils/pravaSession";
 import {
   asNonEmptyString,
   asRecord,
   isMerchantPaymentBody,
+  maskToken,
   parseAutomationCredentials,
   resolveTimeout,
   sanitize,
@@ -17,21 +20,6 @@ import {
 } from "@/app/utils/merchantPayment";
 
 export const runtime = "nodejs";
-
-async function isSelectorVisible(
-  page: Awaited<ReturnType<typeof chromium.launch>> extends infer _
-    ? import("playwright").Page
-    : never,
-  selector: string,
-  timeout: number,
-): Promise<boolean> {
-  try {
-    await page.waitForSelector(selector, { timeout, state: "visible" });
-    return true;
-  } catch {
-    return false;
-  }
-}
 
 /**
  * Route: POST /api/merchant-payment
@@ -121,12 +109,18 @@ export async function POST(request: Request) {
   console.log("[merchant-payment/automation] automation starts here", {
     merchantCheckoutUrl,
     pravaSessionId: body.sessionId,
-    tokenLast4: credentials.token.slice(-4),
+    cardNumber: maskToken(credentials.token),
   });
   eventLogger.info("Processing payment information.", {
     stage: "merchant_payment_processing",
     merchantCheckoutUrl,
     pravaSessionId: body.sessionId,
+  });
+  console.log("[merchant-payment/automation] card details being used (masked)", {
+    cardNumber: maskToken(credentials.token),
+    cardCVV: "*".repeat(credentials.dynamicCvv.length),
+    cardExpiryMonth: credentials.expiryMonth,
+    cardExpiryYear: credentials.expiryYear,
   });
 
   // Stage 3: Launch browser automation and populate checkout form fields.
@@ -140,39 +134,111 @@ export async function POST(request: Request) {
       timeout: timeoutMs,
     });
 
-    if (selectors.cardholderNameInput && customerName) {
-      await page.fill(selectors.cardholderNameInput, customerName);
+    let effectiveSelectors: MerchantPaymentSelectors = { ...selectors };
+
+    try {
+      const [pageTitle, pageText, pageHtml] = await Promise.all([
+        page.title(),
+        page.evaluate(() => document.body?.innerText ?? ""),
+        page.content(),
+      ]);
+
+      const inferredCheckoutSelectors = await inferCheckoutSelectorsByLLM({
+        checkoutUrl: merchantCheckoutUrl,
+        pageTitle,
+        pageText,
+        pageHtml,
+        knownSelectors: {
+          cardholderNameInput: selectors.cardholderNameInput,
+          tokenInput: selectors.tokenInput,
+          cvvInput: selectors.cvvInput,
+          expiryInput: selectors.expiryInput,
+          expiryMonthInput: selectors.expiryMonthInput,
+          expiryYearInput: selectors.expiryYearInput,
+          payButton: selectors.payButton,
+        },
+      });
+
+      console.log("[merchant-payment/automation] LLM analyzed checkout selectors", {
+        inferredCheckoutSelectors,
+      });
+
+      if (inferredCheckoutSelectors) {
+        effectiveSelectors = {
+          ...selectors,
+          ...(inferredCheckoutSelectors.cardholderNameInput
+            ? { cardholderNameInput: inferredCheckoutSelectors.cardholderNameInput }
+            : {}),
+          ...(inferredCheckoutSelectors.tokenInput
+            ? { tokenInput: inferredCheckoutSelectors.tokenInput }
+            : {}),
+          ...(inferredCheckoutSelectors.cvvInput
+            ? { cvvInput: inferredCheckoutSelectors.cvvInput }
+            : {}),
+          ...(inferredCheckoutSelectors.expiryInput
+            ? { expiryInput: inferredCheckoutSelectors.expiryInput }
+            : {}),
+          ...(inferredCheckoutSelectors.expiryMonthInput
+            ? { expiryMonthInput: inferredCheckoutSelectors.expiryMonthInput }
+            : {}),
+          ...(inferredCheckoutSelectors.expiryYearInput
+            ? { expiryYearInput: inferredCheckoutSelectors.expiryYearInput }
+            : {}),
+          ...(inferredCheckoutSelectors.payButton
+            ? { payButton: inferredCheckoutSelectors.payButton }
+            : {}),
+        };
+
+        eventLogger.info("LLM inferred checkout form selectors.", {
+          stage: "merchant_payment_llm_checkout_selector_inference",
+          merchantCheckoutUrl,
+          tokenInput: effectiveSelectors.tokenInput,
+          cvvInput: effectiveSelectors.cvvInput,
+          payButton: effectiveSelectors.payButton,
+        });
+      }
+    } catch (error) {
+      console.warn(
+        "[merchant-payment/automation] LLM checkout selector inference failed",
+        {
+          merchantCheckoutUrl,
+          error: error instanceof Error ? error.message : "Unknown error",
+        },
+      );
     }
 
-    await page.fill(selectors.tokenInput, credentials.token);
-    await page.fill(selectors.cvvInput, credentials.dynamicCvv);
+    if (effectiveSelectors.cardholderNameInput && customerName) {
+      await page.fill(effectiveSelectors.cardholderNameInput, customerName);
+    }
+
+    await page.fill(effectiveSelectors.tokenInput, credentials.token);
+    await page.fill(effectiveSelectors.cvvInput, credentials.dynamicCvv);
 
     const expiryMMYY = toExpiryMMYY(
       credentials.expiryMonth,
       credentials.expiryYear,
     );
 
-    if (selectors.expiryInput && expiryMMYY) {
-      await page.fill(selectors.expiryInput, expiryMMYY);
+    if (effectiveSelectors.expiryInput && expiryMMYY) {
+      await page.fill(effectiveSelectors.expiryInput, expiryMMYY);
     }
 
-    if (selectors.expiryMonthInput && credentials.expiryMonth) {
-      await page.fill(selectors.expiryMonthInput, credentials.expiryMonth);
+    if (effectiveSelectors.expiryMonthInput && credentials.expiryMonth) {
+      await page.fill(effectiveSelectors.expiryMonthInput, credentials.expiryMonth);
     }
 
-    if (selectors.expiryYearInput && credentials.expiryYear) {
-      await page.fill(selectors.expiryYearInput, credentials.expiryYear);
+    if (effectiveSelectors.expiryYearInput && credentials.expiryYear) {
+      await page.fill(effectiveSelectors.expiryYearInput, credentials.expiryYear);
     }
 
     console.log(
       "[merchant-payment/automation] filling payment check-out form feilds",
       {
         merchantCheckoutUrl,
-        pravaSessionId: body.sessionId,
       },
     );
 
-    await page.click(selectors.payButton);
+    await page.click(effectiveSelectors.payButton);
 
     eventLogger.info("Paying merchant now.", {
       stage: "merchant_payment_waiting_approval",
@@ -183,16 +249,15 @@ export async function POST(request: Request) {
       "[merchant-payment/automation] submitting credentials, making payment now",
       {
         merchantCheckoutUrl,
-        pravaSessionId: body.sessionId,
       },
     );
 
     // Stage 4: Wait for success/failure signals and return normalized result payload.
     let outcome: "submitted" | "success" | "failed" = "submitted";
 
-    if (selectors.successSelector) {
+    if (effectiveSelectors.successSelector) {
       try {
-        await page.waitForSelector(selectors.successSelector, {
+        await page.waitForSelector(effectiveSelectors.successSelector, {
           timeout: timeoutMs,
         });
         outcome = "success";
@@ -201,63 +266,14 @@ export async function POST(request: Request) {
       }
     }
 
-    if (selectors.failureSelector) {
+    if (effectiveSelectors.failureSelector) {
       try {
-        await page.waitForSelector(selectors.failureSelector, {
+        await page.waitForSelector(effectiveSelectors.failureSelector, {
           timeout: 1_500,
         });
         outcome = "failed";
       } catch {
         // Keep previous outcome when failure selector is not found quickly.
-      }
-    }
-
-    if (outcome === "submitted") {
-      try {
-        const [pageTitle, pageText, pageHtml] = await Promise.all([
-          page.title(),
-          page.evaluate(() => document.body?.innerText ?? ""),
-          page.content(),
-        ]);
-
-        const inferredSelectors = await inferOutcomeSelectorsByLLM({
-          checkoutUrl: merchantCheckoutUrl,
-          pageTitle,
-          pageText,
-          pageHtml,
-          knownSuccessSelector: selectors.successSelector,
-          knownFailureSelector: selectors.failureSelector,
-        });
-
-        if (inferredSelectors?.successSelector || inferredSelectors?.failureSelector) {
-          eventLogger.info("LLM inferred checkout outcome selectors.", {
-            stage: "merchant_payment_llm_selector_inference",
-            merchantCheckoutUrl,
-            successSelector: inferredSelectors.successSelector,
-            failureSelector: inferredSelectors.failureSelector,
-          });
-
-          const failureVisible = inferredSelectors.failureSelector
-            ? await isSelectorVisible(page, inferredSelectors.failureSelector, 2_500)
-            : false;
-          const successVisible = inferredSelectors.successSelector
-            ? await isSelectorVisible(page, inferredSelectors.successSelector, 2_500)
-            : false;
-
-          if (failureVisible) {
-            outcome = "failed";
-          } else if (successVisible) {
-            outcome = "success";
-          }
-        }
-      } catch (error) {
-        console.warn(
-          "[merchant-payment/automation] LLM selector inference fallback failed",
-          {
-            merchantCheckoutUrl,
-            error: error instanceof Error ? error.message : "Unknown error",
-          },
-        );
       }
     }
 
@@ -272,11 +288,9 @@ export async function POST(request: Request) {
       tokenLast4: credentials.token.slice(-4),
     });
     console.log("[merchant-payment/automation] automation ends here", {
-      merchantCheckoutUrl,
       pravaSessionId: body.sessionId,
       outcome,
       afterPaymentCheckoutURL: currentUrl,
-      tokenLast4: credentials.token.slice(-4),
     });
 
     return Response.json(

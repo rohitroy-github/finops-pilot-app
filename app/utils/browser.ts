@@ -9,7 +9,7 @@ export async function launchBrowser(url: string): Promise<PlannerPage> {
   console.log('[launchBrowser] in', { url })
 
   let result: PlannerPage
-  let mode: 'live' | 'demo' = 'live'
+  let mode: 'live_page_data' | 'mock_page_data' = 'live_page_data'
 
   try {
     const browser = await chromium.launch({ headless: true })
@@ -21,7 +21,7 @@ export async function launchBrowser(url: string): Promise<PlannerPage> {
   } catch (error) {
     console.warn('[browser] Could not launch Playwright browser, returning demo page.', error)
 
-    mode = 'demo'
+    mode = 'mock_page_data'
     result = {
       evaluate: async <T>() =>
         [

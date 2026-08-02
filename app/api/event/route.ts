@@ -40,7 +40,7 @@ export async function POST(request: Request) {
     );
   }
 
-  console.log("[api/event] Event received:", body);
+  console.log("[api/event] New event received:", body);
 
   try {
     await sendLinqNotification({
@@ -62,7 +62,7 @@ export async function POST(request: Request) {
   const finalStatusMessage =
     finalAutomationStatus === "success"
       ? `Hi ${body.client_username}, I just finished my automation with status: ${finalAutomationStatus}. Upgraded your APIs to ${recommendedPlanName} plan which costed ₹${exactCost}. Thanks :))`
-      : `Hi ${body.client_username}, I just finished my automation with status: ${finalAutomationStatus}. Thanks :))`;
+      : `Hi ${body.client_username}, I just finished my automation with status: ${finalAutomationStatus}. Thanks :)) `;
 
   try {
     await sendLinqNotification({
@@ -70,7 +70,7 @@ export async function POST(request: Request) {
       message: finalStatusMessage,
     });
     console.log("[api/event] Final status notification sent successfully", {
-      status: finalAutomationStatus,
+      merchant_payment_status: finalAutomationStatus,
     });
 
   } catch (error) {
