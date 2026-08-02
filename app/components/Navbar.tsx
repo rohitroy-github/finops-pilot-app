@@ -43,7 +43,7 @@ export default function Navbar() {
             Home
           </Link>
           <Link
-            href="/usecases"
+            href="/#usecases"
             className={navItemClass}
           >
             Usecases
@@ -52,7 +52,7 @@ export default function Navbar() {
             href="/auth/log-in"
             className={navItemClass}
           >
-            Console
+            Agent Console
           </Link>
         </div>
 
