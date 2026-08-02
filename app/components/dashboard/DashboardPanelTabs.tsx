@@ -34,7 +34,7 @@ export default function DashboardPanelTabs({
             : "text-black/80 hover:bg-black/10"
         }`}
       >
-        Active Mandates
+        Mandates
       </button>
       <button
         type="button"

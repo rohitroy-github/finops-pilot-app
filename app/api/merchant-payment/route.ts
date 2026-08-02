@@ -4,7 +4,10 @@ import { eventLogger } from "@/app/utils/eventLogger";
 import {
   inferCheckoutSelectorsByLLM,
 } from "@/app/utils/llm";
-import { getPravaPaymentResult } from "@/app/utils/pravaSession";
+import {
+  getPravaPaymentResult,
+  reportPravaMerchantPaymentOutcome,
+} from "@/app/utils/pravaSession";
 import {
   asNonEmptyString,
   asRecord,
@@ -274,6 +277,57 @@ export async function POST(request: Request) {
         outcome = "failed";
       } catch {
         // Keep previous outcome when failure selector is not found quickly.
+      }
+    }
+
+    if (body.sessionId) {
+      try {
+        const pravaReport = await reportPravaMerchantPaymentOutcome({
+          sessionId: body.sessionId,
+          outcome,
+        });
+
+        if (pravaReport) {
+          eventLogger.success(
+            `Reported merchant payment status to Prava as: ${pravaReport.txn_status}.`,
+            {
+              stage: "prava_report_status_success",
+              sessionId: body.sessionId,
+              txnRefId: pravaReport.txn_ref_id,
+              txnStatus: pravaReport.txn_status,
+              visaConfirmation: pravaReport.visa_confirmation,
+            },
+          );
+        } else {
+          eventLogger.info(
+            "Skipped Prava report-status check because outcome is still submitted.",
+            {
+              stage: "prava_report_status_skipped",
+              sessionId: body.sessionId,
+              outcome,
+            },
+          );
+        }
+      } catch (error) {
+        const message =
+          error instanceof Error
+            ? error.message
+            : "Unknown report-status error";
+
+        eventLogger.error("Failed to report merchant payment status to Prava.", {
+          stage: "prava_report_status_error",
+          sessionId: body.sessionId,
+          outcome,
+          error: message,
+        });
+        console.error(
+          "[merchant-payment/automation] prava report-status failed",
+          {
+            sessionId: body.sessionId,
+            outcome,
+            error: message,
+          },
+        );
       }
     }
 

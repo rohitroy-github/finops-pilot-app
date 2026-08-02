@@ -54,8 +54,8 @@ export default function Home() {
             automatically resolving API rate limits and payment failures.
           </p>
           <Link
-            href="/agent/dashboard"
-            className="rounded-full border border-black bg-black px-6 py-3 text-sm font-semibold uppercase tracking-wider text-white transition-colors hover:bg-white hover:text-black"
+              href="/auth/log-in"
+            className="rounded-full border border-black bg-black px-6 py-3 text-sm font-semibold tracking-wider text-white transition-colors hover:bg-white hover:text-black"
           >
             Let's automate
           </Link>

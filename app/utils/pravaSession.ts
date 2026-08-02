@@ -36,11 +36,27 @@ type UserPravaIdRow = RowDataPacket & {
   prava_user_id: string;
 };
 
-type UserNotificationHandleRow = RowDataPacket & {
-  mobile_number: string;
+export type PravaPaymentResultResponse = Record<string, unknown>;
+
+export type PravaTxnStatus = "APPROVED" | "DECLINED";
+
+export type PravaReportStatusResponse = {
+  status: "confirmed";
+  txn_ref_id: string;
+  txn_status: PravaTxnStatus;
+  visa_confirmation: "SUCCESS" | "FAILURE";
+  [key: string]: unknown;
 };
 
-export type PravaPaymentResultResponse = Record<string, unknown>;
+type PravaReportStatusBody = {
+  txn_ref_id: string;
+  txn_status: PravaTxnStatus;
+  txn_type?: string;
+  authorization_code?: string;
+  response_code?: string;
+  amount_paid?: string;
+  product_statuses?: Array<Record<string, unknown>>;
+};
 
 function resolvePravaBaseUrl(secretKey: string): string {
   const envBaseUrl = process.env.PRAVA_API_BASE_URL?.trim();
@@ -84,6 +100,20 @@ function readString(value: unknown): string | undefined {
 
   const normalized = value.trim();
   return normalized ? normalized : undefined;
+}
+
+function extractTxnRefIdFromPaymentResult(
+  result: PravaPaymentResultResponse,
+): string | undefined {
+  const record = asJobEvent(result);
+  const transactions = Array.isArray(record.transactions)
+    ? record.transactions
+    : [];
+  const firstTxn = asJobEvent(transactions[0]);
+  const lineItems = Array.isArray(firstTxn.line_items) ? firstTxn.line_items : [];
+  const firstLineItem = asJobEvent(lineItems[0]);
+
+  return readString(firstLineItem.txn_ref_id);
 }
 
 function resolveUsernameFromEvent(
@@ -282,6 +312,106 @@ export async function getPravaPaymentResult(
   }
 
   return (await response.json()) as PravaPaymentResultResponse;
+}
+
+export async function reportPravaStatus(params: {
+  sessionId: string;
+  txnRefId: string;
+  txnStatus: PravaTxnStatus;
+  txnType?: string;
+  authorizationCode?: string;
+  responseCode?: string;
+  amountPaid?: string;
+  productStatuses?: Array<Record<string, unknown>>;
+}): Promise<PravaReportStatusResponse> {
+  const rawSecretKey = process.env.PRAVA_SECRET_KEY;
+  if (!rawSecretKey) {
+    throw new Error("Missing PRAVA_SECRET_KEY");
+  }
+
+  const secretKey = rawSecretKey.trim();
+  if (!secretKey.startsWith("sk_test_") && !secretKey.startsWith("sk_live_")) {
+    throw new Error("PRAVA_SECRET_KEY must start with sk_test_ or sk_live_");
+  }
+
+  const baseUrl = resolvePravaBaseUrl(secretKey);
+  const body: PravaReportStatusBody = {
+    txn_ref_id: params.txnRefId,
+    txn_status: params.txnStatus,
+  };
+
+  if (params.txnType) {
+    body.txn_type = params.txnType;
+  }
+  if (params.authorizationCode) {
+    body.authorization_code = params.authorizationCode;
+  }
+  if (params.responseCode) {
+    body.response_code = params.responseCode;
+  }
+  if (params.amountPaid) {
+    body.amount_paid = params.amountPaid;
+  }
+  if (params.productStatuses) {
+    body.product_statuses = params.productStatuses;
+  }
+
+  const response = await fetch(
+    `${baseUrl}/v1/sessions/${params.sessionId}/report-status`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${secretKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    },
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(
+      `Prava report-status failed (${response.status}): ${errorText}`,
+    );
+  }
+
+  return (await response.json()) as PravaReportStatusResponse;
+}
+
+export async function reportPravaMerchantPaymentOutcome(params: {
+  sessionId: string;
+  outcome: "success" | "failed" | "submitted";
+  txnRefId?: string;
+  amountPaid?: string;
+}): Promise<PravaReportStatusResponse | null> {
+  if (params.outcome === "submitted") {
+    return null;
+  }
+
+  let txnRefId = params.txnRefId?.trim();
+  if (!txnRefId) {
+    const paymentResult = await getPravaPaymentResult(params.sessionId);
+    txnRefId = extractTxnRefIdFromPaymentResult(paymentResult);
+  }
+
+  if (!txnRefId) {
+    throw new Error(
+      `Missing txn_ref_id for session ${params.sessionId}. Cannot call report-status.`,
+    );
+  }
+
+  const txnStatus: PravaTxnStatus =
+    params.outcome === "success" ? "APPROVED" : "DECLINED";
+
+  return reportPravaStatus({
+    sessionId: params.sessionId,
+    txnRefId,
+    txnStatus,
+    txnType: "PURCHASE",
+    authorizationCode:
+      txnStatus === "APPROVED" ? "FINOPS_APPROVED" : "FINOPS_DECLINED",
+    amountPaid: params.amountPaid,
+  });
 }
 
 export async function revokePravaSession(

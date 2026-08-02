@@ -1,9 +1,14 @@
-import mysql, { Connection, Pool, RowDataPacket, ResultSetHeader } from 'mysql2/promise';
+import mysql, {
+  Connection,
+  Pool,
+  RowDataPacket,
+  ResultSetHeader,
+} from "mysql2/promise";
 
-const host = process.env.LOCAL_DB_HOST || 'localhost';
-const user = process.env.LOCAL_DB_USER || 'root';
-const password = process.env.LOCAL_DB_PASSWORD || '';
-const DB_NAME = process.env.LOCAL_DB_NAME || 'finops_pilot_local_db';
+const host = process.env.LOCAL_DB_HOST || "localhost";
+const user = process.env.LOCAL_DB_USER || "root";
+const password = process.env.LOCAL_DB_PASSWORD || "";
+const DB_NAME = process.env.LOCAL_DB_NAME || "finops_pilot_local_db";
 
 // Extend the NodeJS Global interface to cache the pool and init promise in development (prevents double-connections on HMR)
 declare global {
@@ -27,12 +32,18 @@ async function initDB(): Promise<void> {
     // 2. Create Database if missing
     await connection.query(`CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\`;`);
   } catch (error) {
-    console.error(`[db] Error while connecting to MySQL or creating database \`${DB_NAME}\``, error);
+    console.error(
+      `[db] Error while connecting to MySQL or creating database \`${DB_NAME}\``,
+      error,
+    );
     throw error;
   } finally {
     if (connection) {
       await connection.end().catch((closeError: unknown) => {
-        console.error('[db] Error while closing bootstrap DB connection', closeError);
+        console.error(
+          "[db] Error while closing bootstrap DB connection",
+          closeError,
+        );
       });
     }
   }
@@ -85,8 +96,25 @@ async function initDB(): Promise<void> {
     ) ENGINE=InnoDB;
   `;
 
+  // 6. Create "mandates" table
+  const createMandatesTable = `
+    CREATE TABLE IF NOT EXISTS mandates (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      username VARCHAR(100) NOT NULL,
+      prava_user_id VARCHAR(150) NOT NULL,
+      merchant_name VARCHAR(255) NOT NULL,
+      total_amount DECIMAL(10, 2) NOT NULL,
+      frequency VARCHAR(50) NOT NULL DEFAULT '',
+      charges_total INT NOT NULL DEFAULT 0,
+      charges_made INT NOT NULL DEFAULT 0,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    ) ENGINE=InnoDB;
+  `;
+
   await pool.query(createUsersTable);
   await pool.query(createEventsTable);
+  await pool.query(createMandatesTable);
 
   console.info(`${DB_NAME} DB initialization completed`);
 }
@@ -102,13 +130,13 @@ if (!global._dbInitPromise) {
 // Strongly typed query wrapper supporting standard rows or insert result headers
 export async function query<T extends RowDataPacket[] | ResultSetHeader>(
   sql: string,
-  params?: any[]
+  params?: any[],
 ): Promise<T> {
   await global._dbInitPromise;
-  
+
   const currentPool = global._mysqlPool || pool;
   if (!currentPool) {
-    throw new Error('Database pool has not been initialized.');
+    throw new Error("Database pool has not been initialized.");
   }
 
   const [results] = await currentPool.execute<T>(sql, params);

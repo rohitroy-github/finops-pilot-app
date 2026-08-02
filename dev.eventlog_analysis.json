@@ -1,19 +1,28 @@
-[7:22:42 PM] [success] Planner complete
-[7:22:42 PM] [success] Automation ended successfull.
-[7:22:39 PM] [info] Paying merchant now.
-[7:22:38 PM] [info] LLM inferred checkout form selectors.
-[7:22:28 PM] [info] Processing payment information.
-[7:22:28 PM] [info] Initialized automation.
-[7:22:28 PM] [info] Credentials fetched - triggering merchant payment automation
-[7:21:12 PM] [info] Watching for credential generation.
-[7:21:12 PM] [success] Prava session initialized.
-[7:21:10 PM] [info] Job created with id: 93a0698f-249d-4c56-a201-d4dec955bea8
-[7:21:10 PM] [info] Creating Prava session from job@93a0698f-249d-4c56-a201-d4dec955bea8.
-[7:21:10 PM] [info] Fetched LLMs analyzed data.
-[7:21:10 PM] [success] LLM selected plan: Business @ 25
-[7:21:08 PM] [info] Closing browser context now.
-[7:21:08 PM] [info] Sending scrapped data to LLM for analysis.
-[7:21:08 PM] [info] Scraping successfull.
-[7:21:08 PM] [info] Scraping page.
-[7:20:43 PM] [info] New incident - Planner activated
-[7:20:43 PM] [info] Launching merchant pricing page in browser.
+[8:12:08 PM] [success] Notified user successfully over SMS.
+[8:12:08 PM] [info] Sending SMS notification to user.
+[8:12:08 PM] [success] Planner executed successfully.
+[8:12:08 PM] [success] Automation ended with outcome: success.
+[8:12:08 PM] [success] Reported merchant payment status to Prava as: APPROVED.
+[8:12:04 PM] [info] Paying merchant now with card.
+[8:12:03 PM] [info] LLM analyzed checkout page form selectors verified successfully
+[8:11:56 PM] [info] Processing card information.
+[8:11:56 PM] [info] Initialized merchant payment automation successfully.
+[8:11:56 PM] [info] Credentials generated successfully - automating using card ****7110
+[8:11:04 PM] [success] Prava session initialized, waiting for your payment approval.
+[8:11:04 PM] [info] Watching for Prava generated credentials.
+[8:11:04 PM] [success] Notified user successfully over SMS.
+[8:11:04 PM] [info] Sending SMS notification to user.
+[8:11:04 PM] [success] Notified user successfully over SMS.
+[8:11:04 PM] [info] Sending SMS notification to user.
+[8:11:03 PM] [info] Agent job created = id: 7f456410-5c7b-449b-9f20-11e8eff1a8db
+[8:11:03 PM] [info] Creating Prava payment session for job@7f456410-5c7b-449b-9f20-11e8eff1a8db.
+[8:11:03 PM] [success] Analyzed LLM api plan: Business @ ₹25
+[8:11:03 PM] [info] Fetched LLMs analyzed data successfully.
+[8:11:00 PM] [info] Scrapping done, closing browser context.
+[8:11:00 PM] [info] Sending scrapped data to LLM for analysis.
+[8:11:00 PM] [info] Merchant pricing page scrapped successfully.
+[8:11:00 PM] [info] Scraping merchant pricing page.
+[8:10:39 PM] [info] New incident receievd - planner activated.
+[8:10:39 PM] [info] Launching browser context for merchant pricing page to scrape data.
+[8:10:39 PM] [success] Notified user successfully over SMS.
+[8:10:38 PM] [info] Sending SMS notification to user.
