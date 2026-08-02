@@ -1,6 +1,7 @@
 import { chromium } from "playwright";
 
 import { eventLogger } from "@/app/utils/eventLogger";
+import { inferOutcomeSelectorsByLLM } from "@/app/utils/llm";
 import { getPravaPaymentResult } from "@/app/utils/pravaSession";
 import {
   asNonEmptyString,
@@ -16,6 +17,21 @@ import {
 } from "@/app/utils/merchantPayment";
 
 export const runtime = "nodejs";
+
+async function isSelectorVisible(
+  page: Awaited<ReturnType<typeof chromium.launch>> extends infer _
+    ? import("playwright").Page
+    : never,
+  selector: string,
+  timeout: number,
+): Promise<boolean> {
+  try {
+    await page.waitForSelector(selector, { timeout, state: "visible" });
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 /**
  * Route: POST /api/merchant-payment
@@ -193,6 +209,55 @@ export async function POST(request: Request) {
         outcome = "failed";
       } catch {
         // Keep previous outcome when failure selector is not found quickly.
+      }
+    }
+
+    if (outcome === "submitted") {
+      try {
+        const [pageTitle, pageText, pageHtml] = await Promise.all([
+          page.title(),
+          page.evaluate(() => document.body?.innerText ?? ""),
+          page.content(),
+        ]);
+
+        const inferredSelectors = await inferOutcomeSelectorsByLLM({
+          checkoutUrl: merchantCheckoutUrl,
+          pageTitle,
+          pageText,
+          pageHtml,
+          knownSuccessSelector: selectors.successSelector,
+          knownFailureSelector: selectors.failureSelector,
+        });
+
+        if (inferredSelectors?.successSelector || inferredSelectors?.failureSelector) {
+          eventLogger.info("LLM inferred checkout outcome selectors.", {
+            stage: "merchant_payment_llm_selector_inference",
+            merchantCheckoutUrl,
+            successSelector: inferredSelectors.successSelector,
+            failureSelector: inferredSelectors.failureSelector,
+          });
+
+          const failureVisible = inferredSelectors.failureSelector
+            ? await isSelectorVisible(page, inferredSelectors.failureSelector, 2_500)
+            : false;
+          const successVisible = inferredSelectors.successSelector
+            ? await isSelectorVisible(page, inferredSelectors.successSelector, 2_500)
+            : false;
+
+          if (failureVisible) {
+            outcome = "failed";
+          } else if (successVisible) {
+            outcome = "success";
+          }
+        }
+      } catch (error) {
+        console.warn(
+          "[merchant-payment/automation] LLM selector inference fallback failed",
+          {
+            merchantCheckoutUrl,
+            error: error instanceof Error ? error.message : "Unknown error",
+          },
+        );
       }
     }
 

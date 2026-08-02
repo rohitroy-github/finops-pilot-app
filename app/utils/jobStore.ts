@@ -19,7 +19,7 @@ type JobPravaSession = {
   iframeUrl?: string
 }
 
-type FinalPaymentStatus = 'pending' | 'success' | 'failed' | 'submitted' | 'cancelled' | 'timeout' | 'skipped_dev_mode'
+type FinalPaymentStatus = 'pending' | 'success' | 'failed' | 'submitted' | 'cancelled' | 'timeout' | 'skipped_dev_mode'| 'skipped'
 
 export type PlannerJob = JobInput & {
   id: string

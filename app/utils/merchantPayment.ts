@@ -184,7 +184,7 @@ export function toExpiryMMYY(month?: string, year?: string): string | undefined 
 }
 
 export type MerchantPaymentWatcherResult = {
-  outcome: 'success' | 'failed' | 'submitted' | 'cancelled' | 'timeout' | 'skipped_dev_mode'
+  outcome: 'success' | 'failed' | 'submitted' | 'cancelled' | 'timeout' | 'skipped_dev_mode' | 'skipped'
   sessionId?: string
   afterPaymentPage?: { title?: string; url?: string }
   error?: string
@@ -291,4 +291,52 @@ export async function watchAndTriggerMerchantPayment(params: {
     sessionId,
   })
   return { outcome: 'timeout', sessionId }
+}
+
+// This function is intended for internal use only, for testing and demo purposes.
+export async function triggerMerchantPaymentWithDirectDemoCredentials(params: {
+  merchantCheckoutUrl: string
+  customerName?: string
+  token: string
+  dynamicCvv: string
+  expiryMonth?: string
+  expiryYear?: string
+}): Promise<MerchantPaymentWatcherResult> {
+  const baseUrl = resolveInternalBaseUrl()
+
+  const response = await fetch(`${baseUrl}/api/merchant-payment`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      merchantCheckoutUrl: params.merchantCheckoutUrl,
+      customer_name: params.customerName ?? 'Finops Pilot Agent',
+      selectors: DEFAULT_SELECTORS,
+      navigationTimeoutMs: 20_000,
+      credentials: {
+        token: params.token,
+        dynamicCvv: params.dynamicCvv,
+        expiryMonth: params.expiryMonth,
+        expiryYear: params.expiryYear,
+      },
+    }),
+  })
+
+  if (!response.ok) {
+    const errorText = await response.text()
+    return { outcome: 'failed', error: errorText }
+  }
+
+  const data = (await response.json()) as {
+    outcome?: string
+    afterPaymentPage?: { title?: string; url?: string }
+  }
+
+  const outcome =
+    data.outcome === 'success'
+      ? 'success'
+      : data.outcome === 'failed'
+      ? 'failed'
+      : 'submitted'
+
+  return { outcome, afterPaymentPage: data.afterPaymentPage }
 }

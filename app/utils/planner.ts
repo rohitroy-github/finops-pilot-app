@@ -239,7 +239,10 @@ import {
   updateJobFinalPaymentStatus,
 } from "./jobStore";
 import { eventLogger } from "./eventLogger";
-import { type MerchantPaymentWatcherResult } from "./merchantPayment";
+import {
+  triggerMerchantPaymentWithDirectDemoCredentials,
+  type MerchantPaymentWatcherResult,
+} from "./merchantPayment";
 
 export type DependencyEventPayload = {
   dependency_merchant: string;
@@ -380,14 +383,50 @@ export async function planner(
   // Stage 6: Temporarily disabled during development.
   // ###############################################################################################################
 
-  const merchantPaymentOutcome: MerchantPaymentWatcherResult = {
-    outcome: "skipped_dev_mode",
-  };
+  const merchantCheckoutUrl =
+    process.env.MERCHANT_CHECKOUT_URL ??
+    "http://localhost:3001/checkout?plan=Developer&client_id=client_auth_12345";
+  const demoCardNumber = process.env.DEMO_PRAVA_GENERATED_CARD_NUMBER?.trim();
+  const demoCardExpiry = process.env.DEMO_PRAVA_GENERATED_CARD_EXPIRY?.trim();
+  const demoCardCvv = process.env.DEMO_PRAVA_GENERATED_CARD_CVV?.trim();
 
-  eventLogger.info("Skipping merchant payment watcher for development.", {
-    stage: "merchant_payment_watcher_skipped_dev",
-    jobId: job.id,
-  });
+  const expiryMatch = demoCardExpiry?.match(/^(\d{1,2})\/(\d{2,4})$/);
+  const expiryMonth = expiryMatch?.[1]?.padStart(2, "0");
+  const expiryYear = expiryMatch?.[2]?.slice(-2);
+
+  let merchantPaymentOutcome: MerchantPaymentWatcherResult;
+
+  if (demoCardNumber && demoCardCvv && expiryMonth && expiryYear) {
+    eventLogger.info("Using demo credentials for merchant checkout automation.", {
+      stage: "merchant_payment_watcher_demo_credentials",
+      jobId: job.id,
+      merchantCheckoutUrl,
+      tokenLast4: demoCardNumber.slice(-4),
+      expiryMonth,
+      expiryYear,
+    });
+
+    merchantPaymentOutcome = await triggerMerchantPaymentWithDirectDemoCredentials({
+      merchantCheckoutUrl,
+      customerName: normalizedEvent.client_username,
+      token: demoCardNumber,
+      dynamicCvv: demoCardCvv,
+      expiryMonth,
+      expiryYear,
+    });
+  } else {
+    merchantPaymentOutcome = {
+      outcome: "skipped_dev_mode",
+      error:
+        "Demo credentials missing or invalid. Expected DEMO_PRAVA_GENERATED_CARD_NUMBER, DEMO_PRAVA_GENERATED_CARD_EXPIRY=MM/YY, DEMO_PRAVA_GENERATED_CARD_CVV.",
+    };
+
+    eventLogger.info("Skipping merchant payment watcher for development.", {
+      stage: "merchant_payment_watcher_skipped_dev",
+      jobId: job.id,
+      merchantCheckoutUrl,
+    });
+  }
 
   await updateJobFinalPaymentStatus(job.id, merchantPaymentOutcome.outcome);
 
