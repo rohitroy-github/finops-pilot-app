@@ -46,11 +46,20 @@ This reduces downtime and removes the need to expose raw corporate cards to scri
 
 ## Project Snapshot
 
-<img width="1920" height="1080" alt="dashboard_with_console" src="https://github.com/user-attachments/assets/ecdac31f-a364-402d-bd3e-46e108f5e85b" />
-<img width="1920" height="933" alt="Screenshot (78)" src="https://github.com/user-attachments/assets/c7f6f9d0-17ee-43f5-9e64-7243eac2f32d" />
-<img width="1917" height="963" alt="1" src="https://github.com/user-attachments/assets/a4658142-1dbb-4e33-8ecc-ad3e51635db3" />
-<img width="1920" height="963" alt="Screenshot (83)" src="https://github.com/user-attachments/assets/7b63ea51-a02f-4990-a042-957020be41be" />
-<img width="1920" height="927" alt="Screenshot (85)" src="https://github.com/user-attachments/assets/2e170b21-277f-4cdd-9926-3f0cff97c08e" />
+<table>
+	<tr>
+		<td><img alt="dashboard_with_console" src="https://github.com/user-attachments/assets/ecdac31f-a364-402d-bd3e-46e108f5e85b" /></td>
+		<td><img alt="Screenshot (78)" src="https://github.com/user-attachments/assets/c7f6f9d0-17ee-43f5-9e64-7243eac2f32d" /></td>
+		<td><img alt="Screenshot (1)" src="https://github.com/user-attachments/assets/a4658142-1dbb-4e33-8ecc-ad3e51635db3" /></td>
+	<tr>
+		<td><img alt="Screenshot (83)" src="https://github.com/user-attachments/assets/7b63ea51-a02f-4990-a042-957020be41be" /></td>
+			<td><img alt="Screenshot (1)" src="https://github.com/user-attachments/assets/a4658142-1dbb-4e33-8ecc-ad3e51635db3" /></td>
+		<td><img alt="Screenshot (85)" src="https://github.com/user-attachments/assets/2e170b21-277f-4cdd-9926-3f0cff97c08e" /></td>
+		</tr>
+		<tr>
+			<td><img alt="Screenshot (85)" src="https://github.com/user-attachments/assets/2e170b21-277f-4cdd-9926-3f0cff97c08e" /></td>
+		<td></td>
+</table>
 
 
 ## High-Level Flow
